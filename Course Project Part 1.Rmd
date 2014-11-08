@@ -2,7 +2,7 @@
 title: "Statistical Inference Course Project Part 1"
 author: "Joe Schaal"
 date: "Thursday, November 06, 2014"
-output: html_document
+output: pdf_document
 ---
 
 This report discuss the results of a simulation of the **mean** value of **40** I.I.D. exponential random variables with lambda  $\lambda = 0.2$.  The simulation compares the distribution of **1000** trials with that of a normal distribution.
@@ -107,7 +107,7 @@ yfit <- yfit*diff(simHist$mids[1:2])*length(sim)
 lines(xfit, yfit*.87, col="blue", lwd=2)
 ```
 
-This **mean** $u = `r format(simMean,digits=4)`$ and **standard deviation**  $s = `r format(simSD,digits=4)`$ of the sample are very close to that of the underlying distribution but the distribution does not follow that of a normal distribution.   
+The **mean** $u = `r format(simMean,digits=4)`$ and **standard deviation**  $s = `r format(simSD,digits=4)`$ of the sample are very close to that of the underlying distribution but the distribution does not follow that of a normal distribution.   
 
 However, if we instead sample the averages of a series of uniform random variables, such as sampling the average of $n = 40$ random variables, we see a very different pattern.  For the a sample of the mean of the population of uniform variables, we expect the mean to approach $\frac{1}{2}(a+b) = 0.5$ and the standard deviation to approach $s = \sqrt{\frac{\sigma^2}{n}} =\sqrt{\frac{1/12}{`r n`}} =  `r format(sqrt((1/12)/n),digits=4)`$
 ```{r fig.width=4, fig.height=4}
@@ -125,4 +125,5 @@ yfit <- yfit*diff(simHist$mids[1:2])*length(sim)
 lines(xfit, yfit*.87, col="blue", lwd=2)
 
 ```
-In the simulation example, the **mean** of the simulation is $`r format(simMean,digits=4)` and the **standard deviation** is  $`r format(simSD,digits=4)`.  This compares favorably with that of the theoretical mean and that of a similar normal distribution.
+
+In the simulation example, the **mean** of the simulation is $`r format(simMean,digits=4)`$ and the **standard deviation** is  $`r format(simSD,digits=4)`$.  This compares favorably with that of the theoretical mean and that of a similar normal distribution.
