@@ -93,3 +93,14 @@ trials <- 1000
 hist(runif(trials))
 sim <- apply(matrix(runif(n*trials),trials),1,mean)
 hist(sim)
+
+
+figureNumber <- function(name,figureCount) {
+    figureCount <- figureCount+1
+    figureText <- paste("Figure",as.character(figureCount),":",name)
+}
+knit("Course Project Part 1.Rmd",output = "Course_Project_Part_1.md")
+callformat <-"I:/Program Files/RStudio/bin/pandoc/pandoc -V geometry:margin=1in  %s.md -o %s.pdf"
+
+simHist <- hist(sim1,breaks="Scott",main = figureNumber("Histogram of Simulation 1",figureCount),xlab="")
+simHist <- hist(sim1,breaks="Scott",main = figureNumber("Normal Distribution Overlay",figureCount),xlab = "")
