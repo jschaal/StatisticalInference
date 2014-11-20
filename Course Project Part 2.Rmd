@@ -1,11 +1,10 @@
 ---
 title: "Course Project Part 2"
-author: jschaal
-output: pdf_document
+author: "jschaal"
 date: "Wednesday, November 19, 2014"
+output: pdf_document
 ---
-
-In this part of the project, we examine some of the characteristics of the built in R dataset called **ToothGrowth**.  The dataset contains observations from a study on **The Effect of Vitamin C on Tooth Growth in Guinea Pigs**.   The dataset consists of **`r nrow(ToothGrowth)`** observations of the response in length of odontoblasts (teeth)  from `r length(unique(ToothGrowth$dose))` different doses of Vitamin C, delivered through  `r length(unique(ToothGrowth$supp))` delivery methods.
+In this part of the project, we examine some of the characteristics of the built in R dataset called **ToothGrowth**.  The dataset contains observations from a study on **The Effect of Vitamin C on Tooth Growth in Guinea Pigs**.   The dataset consists of **`r nrow(ToothGrowth)`** observations of the response in length of odontoblasts (teeth)  from `r length(unique(ToothGrowth$dose))` different doses of Vitamin C, delivered through  `r length(unique(ToothGrowth$supp))` delivery methods.  
 
 ###Summary of ToothGrowth Dataset
 ```{r echo=FALSE}
@@ -13,7 +12,96 @@ data(ToothGrowth)
 summary(ToothGrowth)
 str(ToothGrowth)
 ```
+The data allows us to compare a few different hypothesis to see if different doses of Vitamin c supplement and/or different supply methods support a hypothesis that they contributed to the a tooth's growth.  *Please see the graphs of the distribution in the appendix of this report.*  
 
+##Scenario #1
+
+This scenario compares the impact of increasing doses of Vitamin C, independent of the delivery mechanism, to see if there is any statistical significant to tooth growth.
+
+**Test #1-1**: *Compare the impact of doses of 0.5 units to 1.0 units of Vitamin C.*  
+$H_0: \mu_2-\mu_1 = 0$  
+$H_a: \mu_2-\mu_1 > 0$   
+Where $\mu_1$ and and $\mu_2 =$ average tooth growth for 0.5 and 1.0 units of Vitamin C respectively.    
+```{r}
+a <- 0.05
+m1 <- ToothGrowth[ToothGrowth$dose==0.5,"len"]
+m2 <- ToothGrowth[ToothGrowth$dose==1.0,"len"]
+t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE)
+t1$conf
+```
+
+Reforming a *t* test for unequal sample variances, we see that the null hypothesis $\mu_0 = 0$  falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.  Alternatively, we can also reject the null hypothesis on the basis of the **t** statistic **`r round(t1$statistic,3)`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.   
+
+**Test #1-2:** *Compare the impact of doses of 0.5 units to 1.0 units of Vitamin C.*     
+$H_0: \mu_3-\mu_2 = 0$  
+$H_a: \mu_3-\mu_2 > 0$     
+Where $\mu_2$ and and $\mu_3 =$ average tooth growth for 1.0 and 2.0 units of Vitamin C respectively.
+```{r}
+m3 <- ToothGrowth[ToothGrowth$dose==2.0,"len"]
+t1 <- t.test(m3,m2,paired = FALSE,var.equal = FALSE)
+t1$conf
+```   
+Peforming a similar *t* test, we see that the null hypothesis $\mu_0 = 0$  falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.  Alternatively, we can also reject the null hypothesis on the basis of the **t** statistic **`r round(t1$statistic,3)`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.   
+**The results of tests 1-1 and 1-2 support the alternative hypothesis that vitamin C in increased doses does increase average tooth growth in guinea pigs.**   
+
+##Scenario #2
+
+This scenario compares the impact of the Vitamin C supply method, **OJ** vs **VC**, for common dosage levels to see if there is any statistical significant to tooth growth.
+
+**Test #2-1:** *Compare the impact of supply method when dosing 0.5 units of Vitamin C.*     
+$H_0: \mu_2-\mu_1 = 0$  
+$H_a: \mu_2-\mu_1 \neq 0$   
+Where $\mu_1$ and $\mu_2 =$ average tooth growth for 0.5 units of Vitamin C when dosing with *VC* and *OJ* respectively.     
+```{r test_2_1}
+a  <- 0.05
+m1 <- ToothGrowth[ToothGrowth$dose==0.5 & ToothGrowth$supp=="VC","len"]
+m2 <- ToothGrowth[ToothGrowth$dose==0.5 & ToothGrowth$supp=="OJ","len"]
+t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE,conf.level=(1-a/2))
+t1$conf
+```
+
+We see that the null hypothesis $\mu_0 = 0$  falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.  Alternatively, we can also reject the null hypothesis on the basis of the **$|t|$** statistic **`r abs(round(t1$statistic,3))`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a/2)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.   
+
+**Test #2-2:** *Compare the impact of supply method when dosing 1.0 units of Vitamin C.*     
+$H_0: \mu_2-\mu_1 = 0$  
+$H_a: \mu_2-\mu_1 \neq 0$
+Where $\mu_1$ and $\mu_2 =$ average tooth growth for 1.0 units of Vitamin C when dosing with *VC* and *OJ* respectively.       
+```{r}
+a  <- 0.05
+m1 <- ToothGrowth[ToothGrowth$dose==1.0 & ToothGrowth$supp=="VC","len"]
+m2 <- ToothGrowth[ToothGrowth$dose==1.0 & ToothGrowth$supp=="OJ","len"]
+t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE,conf.level=(1-a/2))
+t1$conf
+```
+
+We see that the null hypothesis $\mu_0 = 0$ clearly falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.  Alternatively, we can also reject the null hypothesis on the basis of the **$|t|$** statistic **`r abs(round(t1$statistic,3))`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a/2)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.
+
+**Test #2-3**: *Compare the impact of supply method when dosing 2.0 units of Vitamin C.*  
+$H_0: \mu_2-\mu_1 = 0$  
+$H_a: \mu_2-\mu_1 \neq 0$
+Where $\mu_1$ and $\mu_2 =$ average tooth growth for 2.0 units of Vitamin C when dosing with *VC* and *OJ* respectively.       
+```{r}
+a  <- 0.05
+m1 <- ToothGrowth[ToothGrowth$dose==2.0 & ToothGrowth$supp=="VC","len"]
+m2 <- ToothGrowth[ToothGrowth$dose==2.0 & ToothGrowth$supp=="OJ","len"]
+t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE,conf.level=(1-a/2))
+t1$conf
+```
+
+Unlike all the previous cases, in this test, the null hypothesis $\mu_0 = 0$ falls within the range of the confidence interval.  We therefore **accept** the null hypothesis.  Alternatively, we can also **accept**  the null hypothesis on the basis of the **$|t|$** statistic **`r abs(round(t1$statistic,3))`** not exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a/2)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.
+
+####The results of tests 2-1 and 2-1 support the alternative hypothesis that there is a difference in tooth growth depending on the supply mechanism of Vitamin C for doses of 0.5 and 1.0 units.  In these cases, utilzing OJ vs VC appears to result in longer tooth growth.   However, with an increaed dose of 2 units, the difference between the two supply method does not appear to be statistically significant.  Further tests should be conducted to see if this is the case for other dosages above 2.0 units.
+
+##Conclusion
+
+This results of this study indicate that Vitamin C in increased doses has a statistically significant impact on tooth growth.  In addition, for at least moderate doses of Vitamin C (in this case 1.0 units or less), the choice of supply method, OJ vs VC, also has an impact on tooth growth, with OJ resulting in longer teeth than VC.  However that distinction did not hold true when dosing 2.0 units of Vitamin C, providing some support of the conclusion that supply method has an impact when administering lower doses of Vitamin C, but not necessarily with larger doses.
+
+##Appendix
+##Assumptions
+
+This analysis assumes that the guinea pigs were randomly assigned to a set of predefined combinations of doses and supply methods of Vitamin C.  In addition, it also assumes that there were no other uncontrolled factors that could independently lead to tooth growth on individual subjects that might confound the overall results.
+
+##Distribution Graphs
 ```{r echo=FALSE}
 library(ggplot2)
 
@@ -26,31 +114,18 @@ plot(x=ToothGrowth$dose,y=ToothGrowth$len,xlab="Vitamin C Dose",
 ```{r fig.height=4, fig.width=6}
 gp <- ggplot(ToothGrowth, aes(x=interaction(supp, dose), y=len)) + geom_boxplot()
 ```
-```{r echo=FALSE}
+```{r echo=FALSE,fig.height=4, fig.width=6}
 gp <- gp + xlab("Delivery Method & Dose")
 gp <- gp + ylab("Tooth Growth")
 gp <- gp + ggtitle("Boxplot of Response in Toothgrowth from Vitamin C")
 gp
 ```
-```{r}
+```{r fig.height=4, fig.width=6}
 coplot(len ~ dose | supp, data = ToothGrowth, panel = panel.smooth,
        xlab = "ToothGrowth data: length vs dose, given type of supplement")
-```
+```   
 
-The data allows us to compare a few different hypothesis to see if different doses of Vitamin c supplement and/or different supply methods support a hypothesis that they contributed to the a tooth's growth.
-
-##Scenario #1
-
-This scenario compares the impact of increasing doses of Vitamin C, independent of the delivery mechanism, to see if there is any statistical significant to tooth growth.
-
-#### Test #1-1: Compare the impact of doses of 0.5 units to 1.0 units of Vitamin C.  
-Let $\mu_1 =$ average tooth growth for 0.5 units of Vitamin C.  
-Let $\mu_2 =$ average tooth growth for 1.0 units of Vitamin C.  
-
-$H_0: \mu_2-\mu_1 = 0$  
-$H_a: \mu_2-\mu_1 > 0$
-
-Performing a **t** test, with the assumption that the variances of the two sames are not necessarily equal:
+##Sample t.test details
 ```{r}
 a <- 0.05
 m1 <- ToothGrowth[ToothGrowth$dose==0.5,"len"]
@@ -58,45 +133,11 @@ m2 <- ToothGrowth[ToothGrowth$dose==1.0,"len"]
 t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE)
 t1
 ```
-
-We see that the mean difference of the null hypothesis $\mu_0 = 0$ clearly falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.    
-
-Alternatively, we can also reject the null hypothesis on the basis of the **t** statistic **`r round(t1$statistic,3)`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.   
-
-
-#### Test #1-2: Compare the impact of doses of 0.5 units to 1.0 units of Vitamin C.  
-
-Let $\mu_2 =$ average tooth growth for 1.0 units of Vitamin C.  
-Let $\mu_3 =$ average tooth growth for 2.0 units of Vitamin C.  
-
-$H_0: \mu_3-\mu_2 = 0$  
-$H_a: \mu_3-\mu_2 > 0$
-
-Performing a **t** test, with the assumption that the variances of the two sames are not necessarily equal:
 ```{r}
 m3 <- ToothGrowth[ToothGrowth$dose==2.0,"len"]
 t1 <- t.test(m3,m2,paired = FALSE,var.equal = FALSE)
 t1
-```
-
-We see that the mean difference of the null hypothesis $\mu_0 = 0$ clearly falls out of the range of the confidence interval.   We therefore *again* **reject** the null hypothesis.  
-
-Alternatively, we can also reject the null hypothesis on the basis of the **t** statistic **`r round(t1$statistic,3)`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.   
-
-####The results of tests 1-1 and 1-2 support the alternative hypothesis that vitamin C in increased doses does increase average tooth growth in guinea pigs.   
-
-##Scenario #2
-
-This scenario compares the impact of the Vitamin C supply method, **OJ** vs **VC**, for common dosage levels to see if there is any statistical significant to tooth growth.
-
-#### Test #2-1: Compare the impact of supply method when dosing 0.5 units of Vitamin C.  
-Let $\mu_1 =$ average tooth growth for 0.5 units of Vitamin C when dosing with *VC*   
-Let $\mu_2 =$ average tooth growth for 0.5 units of Vitamin C when dosing with *OJ*     
-
-$H_0: \mu_2-\mu_1 = 0$  
-$H_a: \mu_2-\mu_1 \neq 0$
-
-Performing a **t** test, with the assumption that the variances of the two sames are not necessarily equal:
+```   
 ```{r}
 a  <- 0.05
 m1 <- ToothGrowth[ToothGrowth$dose==0.5 & ToothGrowth$supp=="VC","len"]
@@ -104,59 +145,3 @@ m2 <- ToothGrowth[ToothGrowth$dose==0.5 & ToothGrowth$supp=="OJ","len"]
 t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE,conf.level=(1-a/2))
 t1
 ```
-
-We see that the mean difference of the null hypothesis $\mu_0 = 0$ clearly falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.    
-
-Alternatively, we can also reject the null hypothesis on the basis of the **$|t|$** statistic **`r abs(round(t1$statistic,3))`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a/2)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.
-
-
-#### Test #2-2: Compare the impact of supply method when dosing 1.0 units of Vitamin C.  
-Let $\mu_1 =$ average tooth growth for 1.0 units of Vitamin C when dosing with *VC*   
-Let $\mu_2 =$ average tooth growth for 1.0 units of Vitamin C when dosing with *OJ*     
-
-$H_0: \mu_2-\mu_1 = 0$  
-$H_a: \mu_2-\mu_1 \neq 0$
-
-Performing a **t** test, with the assumption that the variances of the two sames are not necessarily equal:
-```{r}
-a  <- 0.05
-m1 <- ToothGrowth[ToothGrowth$dose==1.0 & ToothGrowth$supp=="VC","len"]
-m2 <- ToothGrowth[ToothGrowth$dose==1.0 & ToothGrowth$supp=="OJ","len"]
-t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE,conf.level=(1-a/2))
-t1
-```
-
-We see that the mean difference of the null hypothesis $\mu_0 = 0$ clearly falls out of the range of the confidence interval.   We therefore **reject** the null hypothesis.    
-
-Alternatively, we can also reject the null hypothesis on the basis of the **$|t|$** statistic **`r abs(round(t1$statistic,3))`** exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a/2)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.
-
-#### Test #2-3: Compare the impact of supply method when dosing 2.0 units of Vitamin C.  
-Let $\mu_1 =$ average tooth growth for 0.5 units of Vitamin C when dosing with *VC*   
-Let $\mu_2 =$ average tooth growth for 0.5 units of Vitamin C when dosing with *OJ*     
-
-$H_0: \mu_2-\mu_1 = 0$  
-$H_a: \mu_2-\mu_1 \neq 0$
-
-Performing a **t** test, with the assumption that the variances of the two sames are not necessarily equal:
-```{r}
-a  <- 0.05
-m1 <- ToothGrowth[ToothGrowth$dose==2.0 & ToothGrowth$supp=="VC","len"]
-m2 <- ToothGrowth[ToothGrowth$dose==2.0 & ToothGrowth$supp=="OJ","len"]
-t1 <- t.test(m2,m1,paired = FALSE,var.equal = FALSE,conf.level=(1-a/2))
-t1
-```
-
-Unlike all the previous cases, in this test, the mean difference of the null hypothesis $\mu_0 = 0$  falls within the range of the confidence interval.   We therefore **accept** the null hypothesis.    
-
-Alternatively, we can also **accept**  the null hypothesis on the basis of the **$|t|$** statistic **`r abs(round(t1$statistic,3))`** not exceeding **`r round(qt(1-a,t1$parameter),3)`**, which is the **`r (1-a/2)*100`** percentile of the *T* distribution with **`r round(t1$parameter,3)`** degrees of freedom.
-
-
-####The results of tests 2-1 and 2-1 support the alternative hypothesis that there is a difference in tooth growth depending on the supply mechanism of Vitamin C for doses of 0.5 and 1.0 units.  In these cases, utilzing OJ vs VC appears to result in longer tooth growth.   However, with an increaed dose of 2 units, the difference between the two supply method does not appear to be statistically significant.  Further tests should be conducted to see if this is the case for other dosages above 2.0 units.
-
-##Conclusion
-
-This results of this study indicate that Vitamin C in increased doses has a statistically significant impact on tooth growth.  In addition, for at least moderate doses of Vitamin C (in this case 1.0 units or less), the choice of supply method, OJ vs VC, also has an impact on tooth growth, with OJ resulting in longer teeth than VC.  However that distinction did not hold true when dosing 2.0 units of Vitamin C, providing some support of the conclusion that supply method has an impact when administering lower doses of Vitamin C, but not necessarily with larger doses.
-
-##Assumptions
-
-This analysis assumes that the guinea pigs were randomly assigned to a set of predefined combinations of doses and supply methods of Vitamin C.  In addition, it also assumes that there were no other uncontrolled factors that could independently lead to tooth growth on individual subjects that might confound the overall results.
